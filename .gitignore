@@ -1,0 +1,43 @@
+# ---------- Python / Django ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+ENV/
+
+# Banco de dados local
+*.sqlite3
+db.sqlite3
+
+# Arquivos estáticos coletados
+/staticfiles/
+/static/
+
+# Migrações geradas localmente? -> MANTEMOS as migrações no repositório.
+# (não ignorar core/migrations/*.py)
+
+# Variáveis de ambiente / segredos
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# ---------- Editores / SO ----------
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------- Cobertura / testes ----------
+.coverage
+htmlcov/
+.pytest_cache/
