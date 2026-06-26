@@ -13,10 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia o código
 COPY . .
 
-# Coleta arquivos estáticos (admin/swagger)
-RUN python manage.py collectstatic --noinput
+
 
 EXPOSE 8000
 
 # Aplica migrações e sobe o servidor de produção (gunicorn)
-CMD python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000
+CMD python manage.py migrate && \
+    python manage.py collectstatic --noinput && \
+    gunicorn config.wsgi:application --bind 0.0.0.0:8000
