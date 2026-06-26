@@ -9,8 +9,8 @@ na sua estante, adiciona anotações e remove quando desejar (CRUD completo).
 
 ## Integrantes do grupo
 
-- Nome do Integrante 1 — matrícula
-- Nome do Integrante 2 — matrícula
+- Alexandre Sanson — 1711450
+
 
 *(substitua pelos nomes reais antes da entrega)*
 
