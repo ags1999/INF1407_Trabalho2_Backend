@@ -19,7 +19,6 @@ load_dotenv(BASE_DIR / '.env')
 # ---------------------------------------------------------------------------
 SECRET_KEY = os.getenv(
     'SECRET_KEY',
-    'django-insecure-troque-esta-chave-em-producao-0123456789abcdef',
 )
 
 # Em produção, defina DEBUG=False via variável de ambiente
