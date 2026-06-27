@@ -147,14 +147,7 @@ python manage.py test
 6 testes cobrindo proteção de endpoints, login com token, CRUD de livros e o
 isolamento entre usuários.
 
-## Imagens da aplicação
 
-> Substitua pelas capturas reais. Sugestões: Swagger UI, uma resposta de endpoint
-> protegido e a tela do `/admin/`.
-
-![Swagger UI](docs/img/swagger.png)
-![Listagem de livros](docs/img/livros.png)
-![Painel admin](docs/img/admin.png)
 
 ## O que funcionou / o que não funcionou
 
