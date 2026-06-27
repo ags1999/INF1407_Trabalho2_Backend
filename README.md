@@ -11,15 +11,12 @@ na sua estante, adiciona anotações e remove quando desejar (CRUD completo).
 
 - Alexandre Sanson — 1711450
 
-
-
-
 ## Links
 
-- **Site do backend (API):** `https://inf1407trabalho2backend-production.up.railway.app/`
-- **Documentação Swagger:** `https://inf1407trabalho2backend-production.up.railway.app/api/docs/`
-- **Repositório do frontend:** `https://github.com/ags1999/INF1407_Trabalho2_Frontend`
-
+- **Site do backend (API):** https://inf1407trabalho2backend-production.up.railway.app
+- **Documentação Swagger:** https://inf1407trabalho2backend-production.up.railway.app/api/docs/
+- **Repositório do frontend:** https://github.com/ags1999/INF1407_Trabalho2_Frontend
+- **Site do frontend:** https://inf1407trabalho2frontend-production.up.railway.app
 
 ## Tecnologias
 
@@ -28,7 +25,7 @@ na sua estante, adiciona anotações e remove quando desejar (CRUD completo).
 - SimpleJWT (autenticação por tokens JWT)
 - drf-spectacular (documentação OpenAPI / Swagger)
 - django-cors-headers (liberação de CORS para o frontend)
-- SQLite (desenvolvimento) / PostgreSQL (produção, opcional)
+- WhiteNoise + Gunicorn (produção); PostgreSQL no Railway, SQLite em dev
 
 ## Funcionalidades
 
@@ -63,49 +60,83 @@ na sua estante, adiciona anotações e remove quando desejar (CRUD completo).
 Pré-requisitos: **Python 3.12+**.
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/SEU-USUARIO/minha-estante-backend.git
-cd minha-estante-backend
+git clone https://github.com/ags1999/INF1407_Trabalho2_Backend.git
+cd INF1407_Trabalho2_Backend
 
-# 2. Crie e ative um ambiente virtual
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 
-# 3. Instale as dependências
 pip install -r requirements.txt
 
-# 4. Configure as variáveis de ambiente
-cp .env.example .env            # edite os valores conforme necessário
+cp .env.example .env            # edite os valores (ver seção abaixo)
 
-# 5. Aplique as migrações
 python manage.py migrate
-
-# 6. (opcional) crie um superusuário para acessar o /admin/
-python manage.py createsuperuser
-
-# 7. Rode o servidor
+python manage.py createsuperuser   # opcional, para acessar o /admin/
 python manage.py runserver
 ```
 
-A API ficará disponível em `http://localhost:8000` e o Swagger em
-`http://localhost:8000/api/docs/`.
+A API fica em `http://localhost:8000` e o Swagger em `http://localhost:8000/api/docs/`.
 
-> **E-mails em desenvolvimento:** sem configuração SMTP, os e-mails de ativação
-> e de recuperação de senha são **impressos no console** onde o servidor roda.
-> Copie o link mostrado para ativar a conta / redefinir a senha.
+> **E-mails em desenvolvimento:** sem configuração SMTP, os e-mails de ativação e
+> recuperação de senha são **impressos no console** onde o servidor roda. Copie o
+> link mostrado para ativar a conta.
+
+### Via Docker
+
+O projeto pode subir junto com o frontend e o Postgres pelo `docker-compose.yml`
+(ver repositório do frontend / pasta de deploy). O `Dockerfile` aplica as
+migrações e coleta os estáticos **no start** do container.
 
 ## Variáveis de ambiente
 
-Veja `.env.example`. As principais são:
+Veja `.env.example`. **Atenção ao formato** — cada variável tem uma regra
+diferente, e o erro mais comum no deploy é confundi-las:
 
-- `SECRET_KEY` — chave secreta do Django.
-- `DEBUG` — `True` em desenvolvimento, `False` em produção.
-- `ALLOWED_HOSTS` — hosts permitidos (separados por vírgula).
-- `CORS_ALLOWED_ORIGINS` — URLs do frontend liberadas para CORS.
-- `FRONTEND_URL` — URL do frontend (usada nos links dos e-mails).
-- `GBOOKS_API_KEY` — chave da API do Google Books (opcional).
-- `DATABASE_URL` — string do PostgreSQL (opcional; sem ela, usa SQLite).
-- `EMAIL_*` — configuração SMTP (opcional; sem ela, e-mails saem no console).
+| Variável | Formato | Exemplo |
+|---|---|---|
+| `SECRET_KEY` | texto | (gere uma chave única em produção) |
+| `DEBUG` | `True`/`False` | `False` em produção |
+| `ALLOWED_HOSTS` | **só host, sem esquema**, separado por vírgula | `.up.railway.app` |
+| `CORS_ALLOWED_ORIGINS` | **URL com `https://`, sem barra final** | `https://meu-front.up.railway.app` |
+| `FRONTEND_URL` | **URL com `https://`** (usada nos links de e-mail) | `https://meu-front.up.railway.app` |
+| `GBOOKS_API_KEY` | chave da API do Google Books | `AIza...` |
+| `DATABASE_URL` | string do Postgres (opcional; sem ela usa SQLite) | `postgres://...` |
+| `EMAIL_*` | configuração SMTP (ver seção E-mail) | — |
+
+Resumo: `CORS_ALLOWED_ORIGINS` e `FRONTEND_URL` levam `https://`;
+`ALLOWED_HOSTS` vai **sem** esquema.
+
+## Publicação (Railway)
+
+1. Deploy do repositório via GitHub. O Railway usa o `Dockerfile` automaticamente.
+2. Adicione um serviço **PostgreSQL** e referencie `DATABASE_URL=${{Postgres.DATABASE_URL}}`.
+3. Configure as variáveis acima em *Variables* (respeitando o formato).
+4. Gere o domínio público (porta **8000**).
+5. Crie o superusuário no ambiente publicado (roda dentro do container, com o
+   banco de produção):
+   ```bash
+   railway ssh python manage.py createsuperuser
+   ```
+
+O `Dockerfile` executa `migrate` + `collectstatic` + `gunicorn` no start, então
+não há passo manual de deploy. O superusuário criado já nasce **ativo** e serve
+tanto para o `/admin/` quanto para login no frontend.
+
+## E-mail (Resend)
+
+O envio de e-mails é configurado **só por variáveis de ambiente** (sem alterar
+código). Para usar o Resend, defina no backend:
+
+```
+EMAIL_HOST=smtp.resend.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=resend
+EMAIL_HOST_PASSWORD=re_suaApiKey
+DEFAULT_FROM_EMAIL=onboarding@resend.dev   # ou um endereço de domínio verificado
+```
+
+Sem `EMAIL_HOST` definido, o backend usa o modo console (e-mail aparece só no log).
 
 ## Testes
 
@@ -113,31 +144,13 @@ Veja `.env.example`. As principais são:
 python manage.py test
 ```
 
-São 6 testes cobrindo proteção de endpoints, login com token, CRUD de livros
-e isolamento entre usuários.
-
-## Publicação
-
-### Opção A — Docker
-
-```bash
-docker build -t minha-estante-backend .
-docker run -p 8000:8000 --env-file .env minha-estante-backend
-```
-
-### Opção B — Provedor (Render / Railway / AWS)
-
-O projeto inclui um `Procfile` e usa **WhiteNoise** para os arquivos estáticos.
-Defina as variáveis de ambiente no painel do provedor e use o comando de start:
-
-```bash
-python manage.py migrate && gunicorn config.wsgi:application
-```
+6 testes cobrindo proteção de endpoints, login com token, CRUD de livros e o
+isolamento entre usuários.
 
 ## Imagens da aplicação
 
-> Adicione aqui pelo menos três capturas de tela. Sugestões: Swagger UI,
-> resposta de um endpoint protegido e a tela do `/admin/`.
+> Substitua pelas capturas reais. Sugestões: Swagger UI, uma resposta de endpoint
+> protegido e a tela do `/admin/`.
 
 ![Swagger UI](docs/img/swagger.png)
 ![Listagem de livros](docs/img/livros.png)
@@ -147,16 +160,20 @@ python manage.py migrate && gunicorn config.wsgi:application
 
 **Funcionou (testado):**
 
-- CRUD completo de livros pela API (testado via `curl` e testes automatizados).
-- Cadastro com ativação por e-mail (link impresso no console em dev).
+- CRUD completo de livros pela API (testado via `curl`, testes automatizados e
+  pelo frontend publicado).
+- Cadastro com ativação por e-mail e gerência de senha (troca e recuperação).
 - Login/refresh JWT e bloqueio de endpoints sem token (401).
 - Isolamento entre usuários (cada um vê só os próprios livros).
-- Troca e recuperação de senha.
-- Geração da documentação Swagger com todos os endpoints.
+- Documentação Swagger com todos os endpoints.
+- Publicação no Railway (backend + PostgreSQL) com domínio HTTPS.
 
 **Pontos de atenção:**
 
-- A busca no Google Books depende de acesso externo à internet; em ambientes
-  sem rede liberada, o endpoint retorna 503 (comportamento esperado e tratado).
-- O envio real de e-mails exige configuração SMTP (`EMAIL_*`); em
-  desenvolvimento, os e-mails são exibidos no console.
+- A **busca depende da `GBOOKS_API_KEY`**: sem chave, a API do Google responde
+  **429 (cota anônima esgotada)** e a busca pode falhar de forma intermitente.
+  Com a chave configurada, fica estável.
+- A busca também depende de o backend ter **acesso à internet** para alcançar a
+  API do Google Books.
+- O backend serve apenas a API; o `/admin/` e o Swagger usam o HTML nativo do
+  Django/DRF (não há frontend próprio no backend).

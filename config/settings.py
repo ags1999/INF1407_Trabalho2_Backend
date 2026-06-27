@@ -200,3 +200,8 @@ FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5500')
 
 # Chave da API do Google Books (opcional, mas recomendada)
 GBOOKS_API_KEY = os.getenv('GBOOKS_API_KEY', '')
+
+CSRF_TRUSTED_ORIGINS = [
+    o for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()
+]
+
