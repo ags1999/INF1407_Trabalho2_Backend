@@ -12,13 +12,14 @@ na sua estante, adiciona anotações e remove quando desejar (CRUD completo).
 - Alexandre Sanson — 1711450
 
 
-*(substitua pelos nomes reais antes da entrega)*
+
 
 ## Links
 
-- **Site do backend (API):** `https://SUA-API.exemplo.com`
-- **Documentação Swagger:** `https://SUA-API.exemplo.com/api/docs/`
-- **Repositório do frontend:** `https://github.com/SEU-USUARIO/minha-estante-frontend`
+- **Site do backend (API):** `https://inf1407trabalho2backend-production.up.railway.app/`
+- **Documentação Swagger:** `https://inf1407trabalho2backend-production.up.railway.app/api/docs/`
+- **Repositório do frontend:** `https://github.com/ags1999/INF1407_Trabalho2_Frontend`
+
 
 ## Tecnologias
 
